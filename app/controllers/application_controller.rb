@@ -1,6 +1,5 @@
 
 require_relative '../../config/environment'
-require 'pry'
 
 class ApplicationController < Sinatra::Base
 
@@ -10,42 +9,47 @@ class ApplicationController < Sinatra::Base
   end
 
   get '/' do
+    redirect to "/articles"
   end
-
-  get '/articles/new' do
-    erb :new
-  end
-
-  post '/articles' do 
-    
-      title = params[:title]
-      content = params[:content]
-      @article = Article.create(title: title, content: content)
-      #  binding.pry
-      redirect "/articles/#{@article.id}"
-  end
-
-  # put '/articles/:id' do
-  #   id = params[:id]
-  #   @article = Article.find(id)
-  #   redirect "/articles/#{@article.id}"
-  # end
-
-  get '/articles/:id' do
-    id = params[:id]
-    @article = Article.find(id)
-    erb :show
-  end
-
 
   get '/articles' do
     @articles = Article.all
     erb :index
   end
 
-  get '/articles/:id/edit' do
+  get '/articles/new' do
+    @articles = Article.new
+    erb :new
+  end
+
+  post "/articles" do 
+    # title = params[:title]
+    # content = params[:content]
+    # @articles = Article.create(title: title, content: content)
+    @articles = Article.create(params)
+    redirect to "/articles/#{@articles.id}"
+  end
+
+  get '/articles/:id' do 
     id = params[:id]
-    @article = Article.find(id)
+    @articles = Article.find(id)
+    erb :show
+  end
+
+  get "/articles/:id/edit" do
+    id = params[:id]
+    @articles = Article.find(id)
     erb :edit
+  end
+
+  patch "/articles/:id" do
+    @articles = Article.find(params[:id])
+    @articles.update(params[:articles])
+    redirect to "/articles/#{ @articles.id }"
+  end
+
+  delete '/articles/:id' do
+    Article.destroy(params[:id])
+    redirect to "/articles"
   end
 end
